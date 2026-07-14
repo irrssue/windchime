@@ -23,8 +23,14 @@
       overflow: hidden;
       font-family: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
     }
-    .chime-svg { position: relative; z-index: 3; height: 47vh; max-height: 492px; width: auto; overflow: visible; }
+    #scene-canvas { position: relative; z-index: 3; width: 100%; height: 100%; display: block; }
   </style>
+  <script type="importmap">
+  { "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }}
+  </script>
 </head>
 <body>
 <div class="stage" id="stage">
@@ -40,78 +46,7 @@
   <div style="position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(120% 90% at 50% 42%, rgba(255,250,238,0.55), rgba(232,222,201,0) 55%, rgba(120,105,78,0.10) 100%);"></div>
 
   <!-- the chime -->
-  <svg id="chime" class="chime-svg" viewBox="0 0 420 700">
-    <defs>
-      <linearGradient id="tubeGrad" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#100e0b"></stop>
-        <stop offset="16%" stop-color="#312c25"></stop>
-        <stop offset="38%" stop-color="#4f473b"></stop>
-        <stop offset="50%" stop-color="#5b5244"></stop>
-        <stop offset="62%" stop-color="#3f382f"></stop>
-        <stop offset="84%" stop-color="#1f1c17"></stop>
-        <stop offset="100%" stop-color="#0d0b09"></stop>
-      </linearGradient>
-      <linearGradient id="woodGrad" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#241c14"></stop>
-        <stop offset="50%" stop-color="#574636"></stop>
-        <stop offset="100%" stop-color="#211a12"></stop>
-      </linearGradient>
-      <linearGradient id="sailGrad" x1="0" y1="0" x2="0.7" y2="1">
-        <stop offset="0%" stop-color="#2a251d"></stop>
-        <stop offset="48%" stop-color="#39322a"></stop>
-        <stop offset="100%" stop-color="#141109"></stop>
-      </linearGradient>
-      <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#4c4437"></stop>
-        <stop offset="40%" stop-color="#8b8069"></stop>
-        <stop offset="53%" stop-color="#9c9077"></stop>
-        <stop offset="100%" stop-color="#2b2720"></stop>
-      </linearGradient>
-      <filter id="softShadow" x="-40%" y="-40%" width="180%" height="200%">
-        <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#3a3018" flood-opacity="0.18"></feDropShadow>
-      </filter>
-    </defs>
-
-    <!-- fixed hook -->
-    <g id="hook" stroke="#5c5346" stroke-width="3" fill="none" stroke-linecap="round">
-      <path d="M210,20 a9,9 0 1 1 -0.1,0" stroke="#6b6153" stroke-width="3.4"></path>
-      <path d="M210,29 L210,50" stroke="#4f4638" stroke-width="2.4"></path>
-    </g>
-
-    <g id="assembly" filter="url(#softShadow)">
-      <!-- rigging: support strings + ring -->
-      <g id="rig" stroke="#2b2721" stroke-width="1" fill="none">
-        <path d="M210,50 L138,150"></path>
-        <path d="M210,50 L174,142"></path>
-        <path d="M210,50 L210,136"></path>
-        <path d="M210,50 L246,142"></path>
-        <path d="M210,50 L282,150"></path>
-        <ellipse cx="210" cy="150" rx="74" ry="14" stroke="url(#metalGrad)" stroke-width="3.4" fill="none"></ellipse>
-        <ellipse cx="210" cy="153.5" rx="74" ry="14" stroke="#1c1913" stroke-width="1" fill="none" opacity="0.6"></ellipse>
-      </g>
-
-      <!-- tubes -->
-      <g class="tube" data-i="0" data-px="144" data-py="156"><line x1="144" y1="150" x2="144" y2="156" stroke="#2b2721" stroke-width="0.8"></line><rect x="137" y="156" width="14" height="320" rx="7" fill="url(#tubeGrad)"></rect></g>
-      <g class="tube" data-i="1" data-px="170" data-py="160"><line x1="170" y1="150" x2="170" y2="160" stroke="#2b2721" stroke-width="0.8"></line><rect x="163" y="160" width="14" height="275" rx="7" fill="url(#tubeGrad)"></rect></g>
-      <g class="tube" data-i="2" data-px="196" data-py="163"><line x1="196" y1="150" x2="196" y2="163" stroke="#2b2721" stroke-width="0.8"></line><rect x="189" y="163" width="14" height="230" rx="7" fill="url(#tubeGrad)"></rect></g>
-      <g class="tube" data-i="3" data-px="224" data-py="163"><line x1="224" y1="150" x2="224" y2="163" stroke="#2b2721" stroke-width="0.8"></line><rect x="217" y="163" width="14" height="210" rx="7" fill="url(#tubeGrad)"></rect></g>
-      <g class="tube" data-i="4" data-px="250" data-py="160"><line x1="250" y1="150" x2="250" y2="160" stroke="#2b2721" stroke-width="0.8"></line><rect x="243" y="160" width="14" height="250" rx="7" fill="url(#tubeGrad)"></rect></g>
-      <g class="tube" data-i="5" data-px="276" data-py="156"><line x1="276" y1="150" x2="276" y2="156" stroke="#2b2721" stroke-width="0.8"></line><rect x="269" y="156" width="14" height="300" rx="7" fill="url(#tubeGrad)"></rect></g>
-
-      <!-- central assembly: string, clapper, sail -->
-      <g id="central">
-        <line x1="210" y1="150" x2="210" y2="293" stroke="#2b2721" stroke-width="1"></line>
-        <rect x="180" y="293" width="60" height="14" rx="7" fill="url(#woodGrad)"></rect>
-        <circle cx="210" cy="300" r="4.2" fill="#1c1710"></circle>
-        <line x1="210" y1="307" x2="210" y2="519" stroke="#2b2721" stroke-width="1"></line>
-        <g id="sail">
-          <circle cx="210" cy="519" r="3" fill="#1c1710"></circle>
-          <path d="M181,522 Q210,514 239,522 Q253,543 238,568 Q223,588 210,590 Q197,588 182,568 Q167,543 181,522 Z" fill="url(#sailGrad)" stroke="#0f0c07" stroke-width="0.8"></path>
-          <path d="M188,528 Q210,523 232,528" stroke="#5b5244" stroke-width="0.8" fill="none" opacity="0.5"></path>
-        </g>
-      </g>
-    </g>
-  </svg>
+  <canvas id="scene-canvas"></canvas>
 
   <!-- the only text -->
   <div style="position:absolute;left:0;right:0;bottom:38px;text-align:center;z-index:4;pointer-events:none;">
@@ -125,19 +60,19 @@
 
 </div>
 
-<script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
 (() => {
 'use strict';
 
 /* ================================================================
    Physical model
    ----------------------------------------------------------------
-   Everything below runs in SI units and is projected onto the SVG
-   at SCALE px per metre (the drawing is 400 px tall from ring to
-   longest tube tip, which we read as roughly a 1 m chime).
-
-   A real chime lives in the horizontal plane, so the model is 3D:
-   x is the screen axis, z is depth toward the viewer.
+   Everything below runs in SI units. A real chime lives in the
+   horizontal plane, so the model is 3D: x is the screen axis, z is
+   depth toward the viewer.
 
    Wind      u(t)   2D vector: prevailing flow whose speed relaxes
                     toward a weather target (OU with Gaussian noise)
@@ -156,6 +91,12 @@
    Tubes     a_k    hang at azimuth psi_k around the ring; each is a
                     uniform rod pivoted at its top swinging radially:
                       a'' = -(3g / 2L) sin a - c a' + drag along e_k
+   Hook rig  thG,p  the whole assembly hangs from a fixed hook and
+                    responds to total wind drag two ways: an angular
+                    sway (short pendulum, two axes) and a genuine
+                    spring-damped translational DOF (px,pz) - the
+                    hook cord itself flexing/swinging the whole rig
+                    sideways, not just the parts within it swinging.
    Strike           geometric contact: the clapper's displacement
                     toward tube k closes the rest gap (plus however
                     far the tube has swung away). Resolved as a 1-D
@@ -165,18 +106,21 @@
                     so silence is guaranteed unless something moves.
    ================================================================ */
 
-const SCALE = 400;            // px per metre
+const SCALE = 400;            // px per metre (legacy drawing scale for constants)
 const G = 9.81;
 const RHO = 1.2;              // air density kg/m^3
 
-// --- geometry read off the SVG (px -> m) ---
+// --- geometry constants (metres), shared by physics and meshes ---
 const RING_Y = 150;
 const L_CLAPPER = (300 - RING_Y) / SCALE;   // 0.375 m, pivot to clapper centre
-const L_SAIL    = (555 - RING_Y) / SCALE;   // ~1.01 m, pivot to sail centre
-const M_CLAPPER = 0.15;      // kg, wooden disk
+const L_SAIL    = (510 - RING_Y) / SCALE;   // 0.9 m, pivot to sail centre
+const M_CLAPPER = 0.25;      // kg, wooden disk
 const M_SAIL    = 0.03;      // kg
-const SAIL_AREA = 0.010;     // m^2
+const SAIL_AREA = 0.018;     // m^2, generous wind catcher
 const CD_SAIL   = 1.2;       // flat-plate-ish drag coefficient
+const RING_R    = 0.185;     // m, ring radius (74px / SCALE)
+const CLAPPER_R = 0.13;      // m, clapper disk radius (wide, like a real chime)
+const TUBE_R    = 0.016;     // m, tube radius
 
 function gauss() {           // Box-Muller: proper Gaussian noise for the wind
   let u = 0; while (!u) u = Math.random();
@@ -190,10 +134,9 @@ const MEFF_CLAPPER = I_C / L_CLAPPER ** 2; // effective mass at clapper height
 
 // --- tubes ---
 // The six tubes hang evenly around the ring; psi is each tube's azimuth in
-// the horizontal plane (x = screen, z = depth), chosen so the on-screen
-// x-projection (cos psi) matches the drawn left-to-right order. freq:
-// fundamental (Hz), an E minor pentatonic voicing; a real tube's pitch
-// goes as 1/L^2, which these lengths approximate.
+// the horizontal plane (x = screen, z = depth). freq: fundamental (Hz), an
+// E minor pentatonic voicing; a real tube's pitch goes as 1/L^2, which
+// these lengths approximate.
 const TUBE_SPEC = [
   { i: 0, off: -66, lenPx: 320, py: 156, freq: 164.81, psi: 195 },
   { i: 1, off: -40, lenPx: 275, py: 160, freq: 220.00, psi: 135 },
@@ -205,26 +148,28 @@ const TUBE_SPEC = [
 
 const tubes = TUBE_SPEC.map(s => {
   const L = s.lenPx / SCALE;                 // rod length, m
-  const m = 0.25 * L;                        // aluminium tube ~0.25 kg/m
+  const m = 0.4 * L;                         // aluminium tube, ~1.5 mm wall
   const I = m * L * L / 3;                   // rod pivoted at end
   const rContact = (300 - s.py) / SCALE;     // contact radius (clapper height)
   const psi = s.psi * Math.PI / 180;
   return {
     ...s,
+    L,
     a: 0, av: 0,                             // radial swing angle, angular velocity
     ex: Math.cos(psi), ez: Math.sin(psi),    // outward unit vector e_k
     omega2: 3 * G / (2 * L),                 // (3g/2L): rod pendulum
     meff: I / (rContact * rContact),         // effective mass at contact
     rContact,
     lastHit: -1,
-    dragCoef: 0.5 * RHO * 1.1 * (L * 0.019) * L / 2 / I, // tube face drag -> ang accel per u|u|
+    dragCoef: 0.5 * RHO * 1.1 * (L * TUBE_R * 2) * L / 2 / I, // tube face drag -> ang accel per u|u|
   };
 });
 
 // --- state ---
 let t = 0;
 let qx = 0, qz = 0, wx = 0, wz = 0;  // clapper/sail pendulum: angle + angular velocity per axis
-let thG = 0, wG = 0;      // whole-assembly sway (hook string)
+let thGx = 0, wGx = 0, thGz = 0, wGz = 0;   // whole-assembly angular sway (hook string), two axes
+let px = 0, pz = 0, vpx = 0, vpz = 0;       // whole-assembly translational sway (hook flex), metres
 let thS = 0, wS = 0;      // sail flutter about its own attachment
 
 // --- wind ---
@@ -305,6 +250,16 @@ function updateWind(dt) {
 }
 
 // --- dynamics ---
+// whole-assembly hook response tuning: MG is the mass "felt" at the hook
+// (rig + tubes contribute inertia beyond just the central assembly); KP/CP
+// are a spring-damper for the translational sway (cord/hook flex under
+// load); tuned so the visible shove settles like a real hung object, not
+// a metronome. These are the calibration knobs - adjust to taste.
+const MG = 0.6;            // effective assembly mass at the hook, kg
+const HOOK_L = 0.25;       // effective short-pendulum length for angular sway, m
+const KP = 90;             // translational spring stiffness, N/m (~2 Hz)
+const CP = 5.5;            // translational damping, N.s/m
+
 function step(dt) {
   // clapper + sail: spherical pendulum, small-angle decoupled x/z modes,
   // driven by vector quadratic drag on the sail
@@ -313,16 +268,44 @@ function step(dt) {
   const vrz = WIND.uz * cosQ - L_SAIL * wz;
   const k = 0.5 * RHO * CD_SAIL * SAIL_AREA * Math.hypot(vrx, vrz);
   const Fx = k * vrx, Fz = k * vrz;    // F = 1/2 rho Cd A |v_rel| v_rel
-  wx += ((-GRAV_C * Math.sin(qx) + Fx * L_SAIL * cosQ) / I_C - 0.12 * wx) * dt;
-  wz += ((-GRAV_C * Math.sin(qz) + Fz * L_SAIL * cosQ) / I_C - 0.12 * wz) * dt;
+
+  // assembly translational acceleration: integrated below for px,pz, and
+  // also the inertial forcing every pendulum hung from the moving ring
+  // feels (an accelerating pivot tilts effective gravity) - this coupling
+  // is what makes the tubes visibly lag the ring when a gust shoves it
+  const axA = (Fx - KP * px) / MG - CP * vpx;
+  const azA = (Fz - KP * pz) / MG - CP * vpz;
+
+  // damping: small linear term (pivot friction) plus quadratic form drag
+  // of clapper and cords, which barely touches light-air motion but caps
+  // large-amplitude swings the way real air resistance does
+  wx += ((-GRAV_C * Math.sin(qx) + Fx * L_SAIL * cosQ - (GRAV_C / G) * axA * Math.cos(qx)) / I_C
+         - 0.12 * wx - 1.0 * wx * Math.abs(wx)) * dt;
+  wz += ((-GRAV_C * Math.sin(qz) + Fz * L_SAIL * cosQ - (GRAV_C / G) * azA * Math.cos(qz)) / I_C
+         - 0.12 * wz - 1.0 * wz * Math.abs(wz)) * dt;
   qx += wx * dt;
   qz += wz * dt;
 
-  // whole-assembly sway: short pendulum from the hook, pushed by total drag
-  const alphaG = -(G / 0.25) * Math.sin(thG) - 1.6 * wG + Fx / (0.6 * 0.25);
-  wG += alphaG * dt;
-  thG += wG * dt;
-  thG = Math.max(-0.09, Math.min(0.09, thG));
+  // whole-assembly angular sway: short pendulum from the hook, two axes,
+  // each pushed by the drag component along its axis
+  const alphaGx = -(G / HOOK_L) * Math.sin(thGx) - 1.6 * wGx + Fx / (MG * HOOK_L);
+  wGx += alphaGx * dt;
+  thGx += wGx * dt;
+  thGx = Math.max(-0.09, Math.min(0.09, thGx));
+
+  const alphaGz = -(G / HOOK_L) * Math.sin(thGz) - 1.6 * wGz + Fz / (MG * HOOK_L);
+  wGz += alphaGz * dt;
+  thGz += wGz * dt;
+  thGz = Math.max(-0.09, Math.min(0.09, thGz));
+
+  // whole-assembly translational sway: the hook cord itself flexes under
+  // total wind load, a spring-damped mass pushed by the same drag force -
+  // this is what makes the entire rig visibly shove sideways in a gust,
+  // not just the parts hung within it
+  vpx += axA * dt;
+  px += vpx * dt;
+  vpz += azA * dt;
+  pz += vpz * dt;
 
   // sail flutter about its own hinge (light, high frequency, buffeting kick;
   // noise scales with sqrt(dt) so its energy is timestep-independent)
@@ -335,11 +318,13 @@ function step(dt) {
   // component along its own azimuth
   for (const tb of tubes) {
     const uk = WIND.ux * tb.ex + WIND.uz * tb.ez;
-    const aTube = -tb.omega2 * Math.sin(tb.a) - 0.6 * tb.av
-                + tb.dragCoef * uk * Math.abs(uk);
+    const aK = axA * tb.ex + azA * tb.ez;   // pivot acceleration along e_k
+    const aTube = -tb.omega2 * Math.sin(tb.a) - 0.9 * tb.av
+                + tb.dragCoef * uk * Math.abs(uk)
+                - (tb.omega2 / G) * aK * Math.cos(tb.a);
     tb.av += aTube * dt;
     tb.a += tb.av * dt;
-    tb.a = Math.max(-0.5, Math.min(0.5, tb.a));   // safety only, physics stays well inside
+    tb.a = Math.max(-0.35, Math.min(0.35, tb.a));   // safety only, physics stays well inside
   }
 
   checkStrikes();
@@ -349,8 +334,9 @@ function step(dt) {
 // that tube's azimuth closes the rest gap (plus however far the tube has
 // swung away). Resolved as a 1-D collision along e_k.
 const RESTITUTION = 0.35;   // wood on aluminium, fairly dead
-const GAP = 0.035;          // m, clapper edge to tube face at rest - real
-                            // chimes run 2-5 cm; the drawing is stylized wider
+// clapper edge to tube face at rest, from the actual geometry, so the
+// strike happens exactly where the eye sees contact
+const GAP = RING_R - TUBE_R - CLAPPER_R;   // 0.049 m
 function checkStrikes() {
   // clapper centre displacement and velocity at contact height (m, m/s)
   const dxp = L_CLAPPER * Math.sin(qx), dzp = L_CLAPPER * Math.sin(qz);
@@ -464,19 +450,153 @@ function strike(freq, vol) {
 }
 
 /* ================================================================
+   3D scene - Three.js
+   ----------------------------------------------------------------
+   Pivot hierarchy mirrors the physics exactly, one node per DOF:
+
+     scene
+     └ gAssembly (hook knot at origin)
+       │   translation px,pz + rotation thGx,thGz (whole-rig hook sway)
+       ├ six suspension cords fanning from the knot to the ring rim
+       ├ ring (y = -DROP) + gTubePivot[k] on the rim (rotate Y by psi)
+       │     └ gTubeSwing[k]  (rotate by tube.a: hanger string + tube
+       │                       swing radially in their azimuth plane)
+       └ gCentral (pivot at ring centre)
+           rotation qz about X, -qx about Z (spherical pendulum)
+         └ clapper disk, string to sail
+           └ gSail  rotation thS (flutter about its hinge)
+   ================================================================ */
+
+const canvas = document.getElementById('scene-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+// metals are black without something to reflect: neutral studio environment
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment()).texture;
+
+const DROP = 0.30;   // hook knot down to ring plane, m
+
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+camera.position.set(0, -0.10, 2.75);
+camera.lookAt(0, -0.66, 0);
+
+// lights: warm key from upper-left, soft hemisphere fill; the environment
+// map above carries the metal reflections
+const hemi = new THREE.HemisphereLight(0xfff4e0, 0x40352a, 0.35);
+scene.add(hemi);
+const key = new THREE.DirectionalLight(0xffe8c0, 0.9);
+key.position.set(-1.1, 1.4, 1.0);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xcdd7e0, 0.2);
+fill.position.set(1.0, 0.3, 0.6);
+scene.add(fill);
+
+// materials: warm bronze-aluminium tubes, dark wood, waxed cord
+const matTube = new THREE.MeshStandardMaterial({ color: 0x8d7f68, metalness: 0.85, roughness: 0.32 });
+const matWood = new THREE.MeshStandardMaterial({ color: 0x6b563f, metalness: 0.0, roughness: 0.7 });
+const matSail = new THREE.MeshStandardMaterial({ color: 0x584732, metalness: 0.0, roughness: 0.85 });
+const matString = new THREE.MeshStandardMaterial({ color: 0x2b2721, metalness: 0.0, roughness: 0.9 });
+const matRing = new THREE.MeshStandardMaterial({ color: 0x9a8c72, metalness: 0.9, roughness: 0.28 });
+
+function stringMesh(len) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.0012, len, 5), matString);
+  m.position.y = -len / 2;
+  return m;
+}
+
+// straight cord between two points in the parent's local frame
+const Y_UP = new THREE.Vector3(0, 1, 0);
+function cord(ax, ay, az, bx, by, bz) {
+  const a = new THREE.Vector3(ax, ay, az);
+  const d = new THREE.Vector3(bx - ax, by - ay, bz - az);
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.0012, d.length(), 5), matString);
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(Y_UP, d.normalize());
+  return m;
+}
+
+// --- whole assembly, hung from the hook at the origin ---
+const gAssembly = new THREE.Group();
+scene.add(gAssembly);
+
+// hook knot, six suspension cords fanning to the ring rim, central cord
+gAssembly.add(new THREE.Mesh(new THREE.SphereGeometry(0.007, 12, 12), matWood));
+gAssembly.add(cord(0, 0, 0, 0, 0.5, 0));   // up to whatever holds it, off-frame
+for (const tb of tubes) {
+  const psi = tb.psi * Math.PI / 180;
+  gAssembly.add(cord(0, 0, 0, RING_R * Math.cos(psi), -DROP, RING_R * Math.sin(psi)));
+}
+gAssembly.add(cord(0, 0, 0, 0, -DROP, 0));
+
+// ring
+const ring = new THREE.Mesh(new THREE.TorusGeometry(RING_R, 0.005, 12, 64), matRing);
+ring.rotation.x = Math.PI / 2;
+ring.position.y = -DROP;
+gAssembly.add(ring);
+
+// tubes, each on a visible hanger string from the ring rim, pre-rotated to
+// its azimuth psi then swinging radially in its own plane
+const tubeGroups = tubes.map(tb => {
+  const psi = tb.psi * Math.PI / 180;
+  const gPivot = new THREE.Group();
+  gPivot.position.set(RING_R * Math.cos(psi), -DROP, RING_R * Math.sin(psi));
+  gPivot.rotation.y = -psi;             // local +x now points radially outward (ex,ez)
+  gAssembly.add(gPivot);
+
+  const gSwing = new THREE.Group();
+  gPivot.add(gSwing);
+
+  const hang = (tb.py - RING_Y) / SCALE + 0.02;   // hanger string, per-tube height
+  gSwing.add(stringMesh(hang));
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R, TUBE_R, tb.L, 24), matTube);
+  mesh.position.y = -hang - tb.L / 2;
+  gSwing.add(mesh);
+
+  return gSwing;
+});
+
+// central assembly: pivot at the ring centre, string down to the wide
+// wooden clapper disk, then on down to the sail
+const gCentral = new THREE.Group();
+gCentral.position.y = -DROP;
+gAssembly.add(gCentral);
+gCentral.add(stringMesh(L_CLAPPER));
+
+const clapper = new THREE.Mesh(new THREE.CylinderGeometry(CLAPPER_R, CLAPPER_R, 0.02, 48), matWood);
+clapper.position.y = -L_CLAPPER;
+gCentral.add(clapper);
+
+gCentral.add((() => { const s = stringMesh(L_SAIL - L_CLAPPER); s.position.y = -L_CLAPPER; return s; })());
+
+// sail, hinged at its attachment point so thS flutter reads as a rotation there
+const gSail = new THREE.Group();
+gSail.position.y = -L_SAIL;
+gCentral.add(gSail);
+
+// classic vertical wooden sail disk, area = SAIL_AREA
+const sailR = Math.sqrt(SAIL_AREA / Math.PI);
+const sail = new THREE.Mesh(new THREE.CylinderGeometry(sailR, sailR, 0.008, 36), matSail);
+sail.rotation.x = Math.PI / 2;   // stand the disk vertical, face into the wind
+sail.position.y = -sailR;
+gSail.add(sail);
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* ================================================================
    Interaction + render loop
    ================================================================ */
 const hint = document.getElementById('hint');
-const chime = document.getElementById('chime');
-const elAssembly = document.getElementById('assembly');
-const elCentral = document.getElementById('central');
-const elSail = document.getElementById('sail');
-const elTubes = [];
-chime.querySelectorAll('.tube').forEach(el => {
-  elTubes[+el.getAttribute('data-i')] = {
-    el, px: +el.getAttribute('data-px'), py: +el.getAttribute('data-py'),
-  };
-});
 
 function wake() {
   initAudio();
@@ -492,19 +612,42 @@ setTimeout(() => {
 // pointer movement only unlocks audio (browser autoplay policy); it is not wind
 window.addEventListener('pointermove', wake, { passive: true });
 
-const DEG = 57.29578;
-function render() {
-  // screen shows the x-projection of the 3D motion
-  elAssembly.setAttribute('transform', `rotate(${thG * DEG} 210 44)`);
-  elCentral.setAttribute('transform', `rotate(${qx * DEG} 210 150)`);
-  elSail.setAttribute('transform', `rotate(${thS * DEG} 210 519)`);
-  for (const tb of tubes) {
-    const e = elTubes[tb.i];
-    e.el.setAttribute('transform', `rotate(${tb.a * tb.ex * DEG} ${e.px} ${e.py})`);
+// the physics runs on a fixed substep; the screen refreshes whenever it
+// likes. Rendering the raw last substep aliases the two clocks against
+// each other and reads as judder, so render() blends the two most recent
+// physics states at the exact fraction the frame falls between them.
+function snap() {
+  return { px, pz, thGx, thGz, qx, qz, thS, a: tubes.map(tb => tb.a) };
+}
+let S0 = snap(), S1 = snap();
+
+function render(f) {
+  const s = (k) => S0[k] + (S1[k] - S0[k]) * f;
+
+  // whole-assembly hook sway: real translation + two-axis rotation, both
+  // driven by the same drag force the tubes and sail feel
+  gAssembly.position.x = s('px');
+  gAssembly.position.z = s('pz');
+  gAssembly.rotation.set(s('thGz'), 0, -s('thGx'));
+
+  // clapper/sail spherical pendulum, both axes (not just the screen axis)
+  gCentral.rotation.set(s('qz'), 0, -s('qx'));
+
+  // sail flutter about its own hinge
+  const th = s('thS');
+  gSail.rotation.x = th * 0.6;
+  gSail.rotation.z = th;
+
+  // each tube swings radially outward/inward in its own azimuth plane
+  for (let i = 0; i < tubes.length; i++) {
+    tubeGroups[i].rotation.z = -(S0.a[i] + (S1.a[i] - S0.a[i]) * f);
   }
+
   if (windGain && actx) {
     windGain.gain.setTargetAtTime(Math.min(0.06, WIND.smooth * 0.012), actx.currentTime, 0.4);
   }
+
+  renderer.render(scene, camera);
 }
 
 // fixed-substep semi-implicit Euler keeps stiff springs stable
@@ -519,9 +662,11 @@ function tick(now) {
     t += SUBSTEP;
     updateWind(SUBSTEP);
     step(SUBSTEP);
+    S0 = S1;
+    S1 = snap();
     acc -= SUBSTEP;
   }
-  render();
+  render(acc / SUBSTEP);
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);

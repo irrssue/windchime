@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const script = html.split('<script>')[1].split('</script>')[0];
+const scriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
+const script = scriptMatch[0].replace(/^<script type="module">/, '').replace(/<\/script>$/, '');
 const cut = script.indexOf('/* ='); // header of the physics block
 const audioAt = script.indexOf('Audio - modal synthesis');
 assert(cut >= 0 && audioAt > cut, 'could not locate physics section');
@@ -23,7 +24,7 @@ const stats = (0, eval)(`${phys}
   let maxQ = 0;
   for (let i = 0; i < 600 * 240; i++) {
     t += SUB; updateWind(SUB); step(SUB);
-    if (!isFinite(qx + qz + wx + wz + thG + thS)) throw new Error('NaN at t=' + t);
+    if (!isFinite(qx + qz + wx + wz + thGx + thGz + px + pz + thS)) throw new Error('NaN at t=' + t);
     for (const tb of tubes) if (!isFinite(tb.a + tb.av)) throw new Error('tube NaN at t=' + t);
     maxQ = Math.max(maxQ, Math.hypot(qx, qz));
   }
